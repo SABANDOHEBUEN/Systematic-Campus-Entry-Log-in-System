@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ISAT-U Campus Entry System</title>
+  <style>
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+    header {
+      background-color: #002855;
+      color: #fff;
+      padding: 2rem 1rem;
+      text-align: center;
+    }
+    nav {
+      background-color: #ffd100;
+      text-align: center;
+      padding: 0.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+    nav a {
+      color: #002855;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 0.5rem;
+      cursor: pointer;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+    section {
+      padding: 2rem 1rem;
+      max-width: 600px;
+      margin: auto;
+      display: none;
+    }
+    section.active {
+      display: block;
+    }
+    h2 { color: #002855; }
+    .btn {
+      background-color: #002855;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+    .success {
+      margin-top: 20px;
+      color: green;
+    }
+    .error {
+      margin-top: 20px;
+      color: red;
+    }
+    footer {
+      background-color: #002855;
+      color: #fff;
+      text-align: center;
+      padding: 1rem;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Systematic Campus Entry Log-in System</h1>
+    <p>ISAT-U La Paz Campus</p>
+  </header>
+
+  <nav>
+    <a onclick="showSection('home')">Home</a>
+    <a onclick="showSection('register')">Register</a>
+    <a onclick="showSection('login')">Login</a>
+    <a onclick="showSection('contact')">Contact Us</a>
+  </nav>
+
+  <section id="home" class="active">
+    <h2>🏫 Welcome to ISAT-U Entry System</h2>
+    <p>This system verifies your ID and vehicle plate number before granting access to the campus.</p>
+  </section>
+
+  <section id="register">
+    <h2>📝 Register</h2>
+    <form id="registrationForm" onsubmit="handleRegister(event)">
+      <label>Full Name:</label>
+      <input type="text" name="regName" required />
+      <label>Contact Number:</label>
+      <input type="text" name="regContact" required />
+      <label>Student ID:</label>
+      <input type="text" name="regStudentId" required />
+      <label>Password:</label>
+      <input type="password" name="regPassword" required />
+      <label>Plate Number:</label>
+      <input type="text" name="regPlate" required />
+      <button type="submit" class="btn">Submit</button>
+    </form>
+    <div id="registerMessage"></div>
+  </section>
+
+  <section id="login">
+    <h2>🔐 Login</h2>
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <label>Student ID:</label>
+      <input type="text" id="loginId" required />
+      <label>Password:</label>
+      <input type="password" id="loginPass" required />
+      <button type="submit" class="btn">Login</button>
+    </form>
+    <div id="loginMessage"></div>
+  </section>
+
+  <section id="contact">
+    <h2>📞 Contact Us</h2>
+    <form id="contactForm" onsubmit="handleContact(event)">
+      <label>Your Name:</label>
+      <input type="text" name="contactName" required />
+      <label>Your Email:</label>
+      <input type="email" name="contactEmail" required />
+      <label>Message:</label>
+      <textarea name="contactMessage" required></textarea>
+      <button type="submit" class="btn">Send</button>
+    </form>
+    <div id="contactMessage"></div>
+  </section>
+
+  <footer>
+    &copy; 2025 Iloilo Science and Technology University - La Paz Campus
+  </footer>
+
+  <script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbwKReY3PM8s-UBsvdzYs_C77zvrnLHzY0bIbug8d4bnY7OxbWsMJCwfVVhoL946iPk-sw/exec";
+
+    function showSection(sectionId) {
+      const sections = document.querySelectorAll('section');
+      sections.forEach(sec => sec.classList.remove('active'));
+      document.getElementById(sectionId).classList.add('active');
+    }
+
+    // Registration handler
+    function handleRegister(e) {
+      e.preventDefault();
+      const form = document.getElementById("registrationForm");
+      const msg = document.getElementById("registerMessage");
+      msg.textContent = "";
+      fetch(scriptURL, {
+        method: "POST",
+        body: new FormData(form)
+      })
+      .then(res => res.text())
+      .then(text => {
+        if(text.trim() === "Success") {
+          msg.textContent = "✅ Registration successful!";
+          msg.className = "success";
+          form.reset();
+        } else {
+          msg.textContent = "❌ Registration failed: " + text;
+          msg.className = "error";
+        }
+      })
+      .catch(err => {
+        msg.textContent = "❌ Registration failed: " + err.message;
+        msg.className = "error";
+      });
+    }
+
+    // Login handler
+    function handleLogin(e) {
+      e.preventDefault();
+      const loginId = document.getElementById('loginId').value.trim();
+      const loginPass = document.getElementById('loginPass').value.trim();
+      const msg = document.getElementById('loginMessage');
+      msg.textContent = "";
+      fetch(`${scriptURL}?action=login&loginId=${encodeURIComponent(loginId)}&loginPass=${encodeURIComponent(loginPass)}`)
+      .then(res => res.json())
+      .then(data => {
+        if(data.status === "Success") {
+          msg.textContent = "✅ Login successful! Welcome, " + data.name;
+          msg.className = "success";
+          showDashboard(data);
+        } else {
+          msg.textContent = "❌ " + data.message;
+          msg.className = "error";
+        }
+      })
+      .catch(err => {
+        msg.textContent = "❌ Login failed: " + err.message;
+        msg.className = "error";
+      });
+    }
+
+    // Contact form handler
+    function handleContact(e) {
+      e.preventDefault();
+      const form = document.getElementById("contactForm");
+      const msg = document.getElementById("contactMessage");
+      msg.textContent = "";
+      fetch(scriptURL, {
+        method: "POST",
+        body: new FormData(form)
+      })
+      .then(res => res.text())
+      .then(text => {
+        if(text.trim() === "Success") {
+          msg.textContent = "✅ Message sent successfully!";
+          msg.className = "success";
+          form.reset();
+        } else {
+          msg.textContent = "❌ Failed to send message: " + text;
+          msg.className = "error";
+        }
+      })
+      .catch(err => {
+        msg.textContent = "❌ Failed to send message: " + err.message;
+        msg.className = "error";
+      });
+    }
+
+    // Show dashboard after login
+    function showDashboard(userData) {
+      // Clear existing sections
+      const sections = document.querySelectorAll('section');
+      sections.forEach(sec => sec.classList.remove('active'));
+
+      // Create dashboard section dynamically
+      let dash = document.getElementById('dashboard');
+      if(!dash){
+        dash = document.createElement('section');
+        dash.id = 'dashboard';
+        dash.style.maxWidth = '600px';
+        dash.style.margin = '2rem auto';
+        dash.style.padding = '1rem';
+        dash.style.border = '1px solid #ccc';
+        dash.style.borderRadius = '8px';
+        dash.style.backgroundColor = '#fff';
+        document.body.insertBefore(dash, document.querySelector('footer'));
+      }
+      dash.classList.add('active');
+
+      dash.innerHTML = `
+        <h2>📊 Dashboard</h2>
+        <p><strong>Welcome, ${userData.name}</strong></p>
+        <p><strong>Student ID:</strong> ${userData.studentId}</p>
+        <p><strong>Contact Number:</strong> ${userData.contact}</p>
+        <p><strong>Plate Number:</strong> ${userData.plate}</p>
+        <button class="btn" onclick="logout()">Logout</button>
+      `;
+    }
+
+    function logout() {
+      const dash = document.getElementById('dashboard');
+      if(dash) dash.remove();
+      document.getElementById('loginMessage').textContent = "";
+      showSection('home');
+    }
+  </script>
+</body>
+</html>
